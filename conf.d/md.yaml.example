@@ -1,0 +1,5 @@
+init_config:
+
+instances:
+    - device: md3
+    - device: md2

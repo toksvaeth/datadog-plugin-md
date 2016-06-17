@@ -72,11 +72,21 @@ class mdCheck(AgentCheck):
                         if dev:
                             mds_list[device_name]['active'].append(dev.group(1))
                             continue
-                # The next line should have some more array metadata.
-                detail = re.search('\[(\d+)\/(\d+)\]', f_mdstat.readline())
-                if detail:
-                    mds_list[device_name]['total'] = detail.group(1)
-                    mds_list[device_name]['up'] = detail.group(2)
+
+                # handle missing metadata for raid0 array configurations.
+                if raid_level == 'raid0':
+                    active_total = len(mds_list[device_name]['active'])
+                    failed_total = len(mds_list[device_name]['failed'])
+                    spare_total = len(mds_list[device_name]['spare'])
+                    total_devices = active_total + failed_total + spare_total
+                    mds_list[device_name]['total'] = total_devices
+                    mds_list[device_name]['up'] = active_total
+                else:
+                    # The next line should have some more array metadata.
+                    detail = re.search('\[(\d+)\/(\d+)\]', f_mdstat.readline())
+                    if detail:
+                        mds_list[device_name]['total'] = detail.group(1)
+                        mds_list[device_name]['up'] = detail.group(2)
 
                 # There may or may not be a next line if a recovery is happening.
                 mds_list[device_name]['recovery_speed'] = 0

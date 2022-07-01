@@ -28,13 +28,16 @@ class mdCheck(AgentCheck):
         array_recovery_complete = float(mdList[device]['recovery_complete'])/100
         array_recovery_speed    = float(mdList[device]['recovery_speed'])*1024
 
-        self.gauge('md_device.disk.total', array_total, device_name=device)
-        self.gauge('md_device.disk.active', array_active, device_name=device)
-        self.gauge('md_device.disk.spare', array_spare, device_name=device)
-        self.gauge('md_device.disk.failed', array_failed, device_name=device)
-        self.gauge('md_device.disk.up', array_up, device_name=device)
-        self.gauge('md_device.recovery.complete', array_recovery_complete, device_name=device)
-        self.gauge('md_device.recovery.speed_bytes', array_recovery_speed, device_name=device)
+        tags = instance.get('tags', [])
+        tags.append('device:%s' % device)
+
+        self.gauge('md_device.disk.total', array_total, tags)
+        self.gauge('md_device.disk.active', array_active, tags)
+        self.gauge('md_device.disk.spare', array_spare, tags)
+        self.gauge('md_device.disk.failed', array_failed, tags)
+        self.gauge('md_device.disk.up', array_up, tags)
+        self.gauge('md_device.recovery.complete', array_recovery_complete, tags)
+        self.gauge('md_device.recovery.speed_bytes', array_recovery_speed, tags)
 
     def parseMdstat(self):
         try:
